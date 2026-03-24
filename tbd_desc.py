@@ -88,7 +88,7 @@ def process_video():
         url = upload_to_imgbb(temp_img)
         if url:
             uploaded_urls.append(url)
-            print(f" ✅ Screenshot {i+1} uploaded.")
+            print(f"✅ Screenshot {i+1} uploaded.")
         
         if os.path.exists(temp_img): 
             os.remove(temp_img)
