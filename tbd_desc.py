@@ -7,14 +7,14 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from pathlib import Path
 
-# --- 1. PATHS CONFIGURATION ---
+# --- PATHS CONFIGURATION ---
 # Paste the FULL location of your .exe files here. 
 # Use 'r' before the quotes to handle Windows backslashes correctly.
 FFMPEG_PATH    = r"C:\Your\Path\To\ffmpeg.exe"
 FFPROBE_PATH   = r"C:\Your\Path\To\ffprobe.exe"
 MEDIAINFO_PATH = r"C:\Your\Path\To\MediaInfo.exe"
 
-# --- 2. API CONFIGURATION ---
+# --- API CONFIGURATION ---
 IMGBB_API_KEY = "your_api_key_here"
 
 def get_startupinfo():
