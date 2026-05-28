@@ -47,7 +47,7 @@ def get_mediainfo(path):
     res = subprocess.run([MEDIAINFO_PATH, path], capture_output=True, text=True, startupinfo=get_startupinfo())
     raw_output = res.stdout.strip()
     
-    # Get only the clean file name (e.g., Scarlet.2025.1080p...mkv)
+    # Get only the clean file name (e.g., Scarlet 2025 1080p...mkv)
     clean_filename = os.path.basename(path)
     
     clean_lines = []
