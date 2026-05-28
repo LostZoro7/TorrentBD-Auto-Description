@@ -123,8 +123,6 @@ def process_video():
     bb += (
         f"[/center]\n"
         f"[hr][center][img]https://i.ibb.co.com/FkPr6XyR/Thank-You.png[/img][/center][hr]\n"
-        f"[b][center][color=#C63968]\"Being Alone Is More Painful Than Getting Hurt\"[/color]\n"
-        f"[color=#7EC544]\"Monkey D. Luffy\"[/color][/center][/b]"
     )
 
     output_path = "tbd_description.txt"
