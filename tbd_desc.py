@@ -43,8 +43,22 @@ def get_video_duration(path):
     return float(res.stdout.strip()) if res.returncode == 0 else None
 
 def get_mediainfo(path):
+    """Fetches mediainfo text and parses out full folder structures for privacy"""
     res = subprocess.run([MEDIAINFO_PATH, path], capture_output=True, text=True, startupinfo=get_startupinfo())
-    return res.stdout.strip()
+    raw_output = res.stdout.strip()
+    
+    # Get only the clean file name (e.g., Scarlet.2025.1080p...mkv)
+    clean_filename = os.path.basename(path)
+    
+    clean_lines = []
+    for line in raw_output.splitlines():
+        # Match and replace the directory path line
+        if line.startswith("Complete name"):
+            # Preserves original spacing alignment inside the code block
+            line = f"Complete name                            : {clean_filename}"
+        clean_lines.append(line)
+        
+    return "\n".join(clean_lines)
 
 def upload_to_imgbb(img_path):
     try:
@@ -72,7 +86,7 @@ def process_video():
     video = select_file_manually()
     if not video: return
     
-    print(f"\n🎬 Processing: {video}")
+    print(f"\n🎬 Processing: {os.path.basename(video)}")
     mi_text = get_mediainfo(video)
     duration = get_video_duration(video)
     uploaded_urls = []
@@ -95,6 +109,8 @@ def process_video():
 
     # --- BBCODE BUILDING ---
     bb = (
+        f"[hr][size=5][center][b][color=#FF8040]Post[url=https://www.torrentbd.net/forums.php?action=viewtopic&topicid=24659] Here![/url] If the download got stalled[/color][/b][/center][/size][hr]\n"
+        f"[df][font=Comic Sans MS][size=5][color=#037E8C]I am shared IP user🥲[/color][/size][/font][/df]\n"
         f"[hr][center][img]https://i.ibb.co.com/Rq0gWF5/Media-Info.png[/img][/center][hr]\n"
         f"[b][size=2][font=consolas][mediainfo]\n{mi_text}\n[/mediainfo][/font][/size][/b]\n\n"
         f"[hr][center][img]https://i.ibb.co.com/KxTxH45D/screenshots.png[/img][/center][hr]\n"
@@ -107,6 +123,8 @@ def process_video():
     bb += (
         f"[/center]\n"
         f"[hr][center][img]https://i.ibb.co.com/FkPr6XyR/Thank-You.png[/img][/center][hr]\n"
+        f"[b][center][color=#C63968]\"Being Alone Is More Painful Than Getting Hurt\"[/color]\n"
+        f"[color=#7EC544]\"Monkey D. Luffy\"[/color][/center][/b]"
     )
 
     output_path = "tbd_description.txt"
