@@ -7,15 +7,15 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from pathlib import Path
 
-# --- PATHS CONFIGURATION ---
+# ---  PATHS CONFIGURATION ---
 # Paste the FULL location of your .exe files here. 
 # Use 'r' before the quotes to handle Windows backslashes correctly.
 FFMPEG_PATH    = r"C:\Your\Path\To\ffmpeg.exe"
 FFPROBE_PATH   = r"C:\Your\Path\To\ffprobe.exe"
 MEDIAINFO_PATH = r"C:\Your\Path\To\MediaInfo.exe"
 
-# --- API CONFIGURATION ---
-IMGBB_API_KEY = "your_api_key_here"
+# ---  API CONFIGURATION ---
+IMGBB_API_KEY = "your_api_key_here" 
 
 def get_startupinfo():
     if os.name == 'nt':
@@ -39,15 +39,18 @@ def check_tools():
 
 def get_video_duration(path):
     cmd = [FFPROBE_PATH, "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", path]
-    res = subprocess.run(cmd, capture_output=True, text=True, startupinfo=get_startupinfo())
-    return float(res.stdout.strip()) if res.returncode == 0 else None
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", startupinfo=get_startupinfo())
+        return float(res.stdout.strip()) if res.returncode == 0 and res.stdout else None
+    except (ValueError, TypeError):
+        return None
 
 def get_mediainfo(path):
     """Fetches mediainfo text and parses out full folder structures for privacy"""
-    res = subprocess.run([MEDIAINFO_PATH, path], capture_output=True, text=True, startupinfo=get_startupinfo())
-    raw_output = res.stdout.strip()
+    res = subprocess.run([MEDIAINFO_PATH, path], capture_output=True, text=True, encoding="utf-8", errors="replace", startupinfo=get_startupinfo())
+    raw_output = res.stdout.strip() if res.stdout else ""
     
-    # Get only the clean file name (e.g., Scarlet 2025 1080p...mkv)
+    # Get only the clean file name (e.g., Scarlet.2025.1080p...mkv)
     clean_filename = os.path.basename(path)
     
     clean_lines = []
@@ -64,7 +67,7 @@ def upload_to_imgbb(img_path):
     try:
         with open(img_path, "rb") as f:
             data = {"key": IMGBB_API_KEY, "image": base64.b64encode(f.read())}
-            r = requests.post("https://api.imgbb.com/1/upload", data=data)
+            r = requests.post("https://api.imgbb.com/1/upload", data=data, timeout=15)
             return r.json()['data']['url'] if r.status_code == 200 else None
     except:
         return None
@@ -86,9 +89,14 @@ def process_video():
     video = select_file_manually()
     if not video: return
     
-    print(f"\n🎬 Processing: {os.path.basename(video)}")
+    print(f"\n🎬 Processing: {video}")
     mi_text = get_mediainfo(video)
     duration = get_video_duration(video)
+    
+    if not duration or duration <= 0:
+        print("❌ Could not determine video duration. Stopping execution.")
+        return
+
     uploaded_urls = []
     
     print("📸 Generating 3 random screenshots & uploading...")
@@ -108,6 +116,7 @@ def process_video():
             os.remove(temp_img)
 
     # --- BBCODE BUILDING ---
+    # --- FIRST PART ---
     bb = (
         f"[hr][size=5][center][b][color=#FF8040]Post[url=https://www.torrentbd.net/forums.php?action=viewtopic&topicid=24659] Here![/url] If the download got stalled[/color][/b][/center][/size][hr]\n"
         f"[df][font=Comic Sans MS][size=5][color=#037E8C]I am shared IP user🥲[/color][/size][/font][/df]\n"
@@ -119,7 +128,8 @@ def process_video():
     
     for url in uploaded_urls: 
         bb += f"[img]{url}[/img]\n"
-    
+        
+    # --- SECOND PART ---
     bb += (
         f"[/center]\n"
         f"[hr][center][img]https://i.ibb.co.com/FkPr6XyR/Thank-You.png[/img][/center][hr]\n"
