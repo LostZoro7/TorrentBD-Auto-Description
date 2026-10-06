@@ -118,8 +118,6 @@ def process_video():
     # --- BBCODE BUILDING ---
     # --- FIRST PART ---
     bb = (
-        f"[hr][size=5][center][b][color=#FF8040]Post[url=https://www.torrentbd.net/forums.php?action=viewtopic&topicid=24659] Here![/url] If the download got stalled[/color][/b][/center][/size][hr]\n"
-        f"[df][font=Comic Sans MS][size=5][color=#037E8C]I am shared IP user🥲[/color][/size][/font][/df]\n"
         f"[hr][center][img]https://i.ibb.co.com/Rq0gWF5/Media-Info.png[/img][/center][hr]\n"
         f"[b][size=2][font=consolas][mediainfo]\n{mi_text}\n[/mediainfo][/font][/size][/b]\n\n"
         f"[hr][center][img]https://i.ibb.co.com/KxTxH45D/screenshots.png[/img][/center][hr]\n"
@@ -138,9 +136,20 @@ def process_video():
     output_path = "tbd_description.txt"
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(bb)
-    
-    print(f"\n✨ Success! Opening the description now...")
-    os.startfile(output_path)
+
+    # Use native Windows clip.exe (persistent even after script exits)
+    subprocess.run(
+        ["clip.exe"],
+        input=bb,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        startupinfo=get_startupinfo(),
+    )
+
+    print(
+        f"\n✨ Success! Output saved to {output_path} and copied to clipboard."
+    )
 
 if __name__ == "__main__":
     process_video()
